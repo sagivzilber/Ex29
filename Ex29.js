@@ -58,7 +58,7 @@ function ballMovingRight(x, y, r) {
   }, 1000 / FPS);
 }
 
-// ballMovingRight(100, 100, 50);
+ballMovingRight(100, 100, 50);
 
 function drawLine(x1, y1, x2, y2, color) {
   ctx.moveTo(x1, y1);

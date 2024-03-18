@@ -20,6 +20,8 @@ var RECT_HEIGHT = 25;
 var RECT_MOVEMENT = 10;
 var CIRCLE_TIME_TO_HIT_BOTTOM = 5;
 var CIRCLE_MOVEMENT = canvasHeight / (FPS * CIRCLE_TIME_TO_HIT_BOTTOM);
+var GAME_HANDLE = -1;
+var game_status = 0; //O means start of game, 1 means game is running, 2 means game ends
 
 /**
  * Utils
@@ -29,14 +31,14 @@ function clearCanvas() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 }
 
-function drawCircle(x, y, r, color = "black") {
+function drawCircle(x, y, r, color) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, 2 * Math.PI);
   ctx.fillStyle = color;
   ctx.fill();
 }
 
-function drawRectangle(x, y, width, height, color = "black") {
+function drawRectangle(x, y, width, height, color) {
   ctx.beginPath();
   ctx.rect(x, y, width, height);
   ctx.fillStyle = color;
@@ -50,6 +52,21 @@ function randomNumber(min, max) {
 /**
  * Game Engine
  */
+
+function startGame() {
+  var startCircle = new Circle(
+    canvasWidth / 2,
+    canvasHeight - RECT_HEIGHT - CIRCLE_R,
+    CIRCLE_R,
+    "yellow"
+  );
+  startCircle.draw();
+  rect.draw();
+}
+function completedLevel() {
+  circle.yPos = CIRCLE_R;
+  circle.xPos = randomNumber(CIRCLE_R, canvasWidth - CIRCLE_R);
+}
 
 var drawings = [];
 
@@ -73,6 +90,18 @@ class Circle {
   }
 
   onTick() {
+    if (this.yPos + this.radius >= canvasHeight) {
+      if (
+        this.xPos + this.radius >= rect.xPos &&
+        this.xPos - this.radius <= rect.xPos + RECT_WIDTH
+      ) {
+        completedLevel();
+      } else {
+        game_status = 2;
+        clearInterval(GAME_HANDLE);
+        return; // lose game outcome
+      }
+    }
     this.yPos += CIRCLE_MOVEMENT;
   }
 
@@ -91,9 +120,9 @@ class Rect {
   }
 
   move(xChange) {
-    // left edge
+    //rect reaches left edge
     if (this.xPos + xChange <= 0) return;
-    // right edge
+    //rect reaches right edge
     if (this.xPos + xChange + this.width >= canvasWidth) return;
     this.xPos += xChange;
   }
@@ -120,8 +149,8 @@ var rect = new Rect(
   "darkblue"
 );
 
-drawings.push(circle);
 drawings.push(rect);
+drawings.push(circle);
 
 /**
  * Game Control
@@ -135,6 +164,21 @@ function onKeyDown(event) {
     case "ArrowLeft":
       rect.move(-RECT_MOVEMENT);
       break;
+    case "Enter":
+      switch (game_status) {
+        case 0:
+          game_status = 1;
+          GAME_HANDLE = setInterval(tick, 1000 / FPS);
+          break;
+        case 2:
+          game_status = 1;
+          completedLevel();
+          GAME_HANDLE = setInterval(tick, 1000 / FPS);
+          break;
+        default:
+          break;
+      }
+      break;
     default:
       break;
   }
@@ -144,4 +188,4 @@ function onKeyDown(event) {
  * Run Game
  */
 
-// setInterval(tick, 1000 / FPS);
+startGame();
