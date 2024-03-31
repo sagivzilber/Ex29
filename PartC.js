@@ -21,7 +21,7 @@ var RECT_MOVEMENT = 10;
 var CIRCLE_TIME_TO_HIT_BOTTOM = 5;
 var CIRCLE_MOVEMENT = canvasHeight / (FPS * CIRCLE_TIME_TO_HIT_BOTTOM);
 var GAME_HANDLE = -1;
-var game_status = 0; //O means start of game, 1 means game is running, 2 means game ends
+var game_status = 0; //  0means start of game, 1 means game is running, 2 means game ends
 
 /**
  * Utils
@@ -183,6 +183,12 @@ function onKeyDown(event) {
       break;
   }
 }
+
+/**
+ * Register Callbacks
+ */
+
+document.getElementById("body").addEventListener("keydown", onKeyDown);
 
 /**
  * Run Game
